@@ -47,7 +47,7 @@ frontend  callewise-frontend-http
         default_backend callewise-backend
 
 frontend callewise-frontend-https
-        bind *:443 ssl crt /etc/letsencrypt/live/mudemy.tech/fullchain.pem
+        bind *:443 ssl crt /etc/letsencrypt/live/www.mudemy.tech/fullchain.pem
         http-request set-header X-Forwarded-Proto https
         http-request redirect scheme https code 301 unless { ssl_fc }
         default_backend callewise-backend
