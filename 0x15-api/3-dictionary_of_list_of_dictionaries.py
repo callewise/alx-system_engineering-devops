@@ -1,33 +1,27 @@
 #!/usr/bin/python3
 """Returns to-do list information for a given employee ID."""
-import requests
 import json
+import requests
 
-def export_all_employees_todo_list():
-    # make GET request to retrieve all employees
-    response = requests.get("https://jsonplaceholder.typicode.com/users")
-    employees_data = response.json()
 
-    # create dictionary to store tasks for all employees
-    tasks_dict = {}
+if __name__ == '__main__':
+    url = "https://jsonplaceholder.typicode.com"
 
-    # iterate over each employee and retrieve their tasks
-    for employee in employees_data:
-        employee_id = employee["id"]
-        employee_username = employee["username"]
-        response = requests.get(f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}")
-        tasks_data = response.json()
+    users = requests.get("{}/users".format(url)).json()
+    todos = requests.get(url + "/todos").json()
 
-        # populate dictionary with task data for this employee
-        tasks_dict[employee_id] = []
-        for task in tasks_data:
-            task_dict = {
-                "username": employee_username,
-                "task": task["title"],
-                "completed": task["completed"]
-            }
-            tasks_dict[employee_id].append(task_dict)
+    dict = {}
+    for user in users:
+        arr = []
+        user_id = user.get('id')
+        for todo in todos:
+            if user.get('id') == todo.get('userId'):
+                arr.append({'task': todo.get('title'),
+                            'completed': todo.get('completed'),
+                            'username': user.get('username')})
+        dict[user_id] = arr
 
-    # write dictionary to JSON file
-    with open("todo_all_employees.json", "w") as jsonfile:
-        json.dump(tasks_dict, jsonfile)
+    filename = "todo_all_employees.json"
+    with open(filename, "w", encoding="utf-8") as json_file:
+        json_text = json.dumps(dict)
+        json_file.write(json_text)

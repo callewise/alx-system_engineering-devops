@@ -1,22 +1,26 @@
 #!/usr/bin/python3
 """Returns to-do list information for a given employee ID."""
-import requests
 import csv
+import requests
+import sys
 
-def export_employee_todo_list(employee_id):
-    # make GET request to retrieve employee info
-    response = requests.get(f"https://jsonplaceholder.typicode.com/users/{employee_id}")
-    employee_data = response.json()
 
-    # make GET request to retrieve employee's tasks
-    response = requests.get(f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}")
-    tasks_data = response.json()
+if __name__ == '__main__':
+    url = "https://jsonplaceholder.typicode.com"
+    user_id = sys.argv[1]
 
-    # create CSV file and write header row
-    with open(f"{employee_id}.csv", "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])
+    user = requests.get("{}/users/{}".format(url, user_id)).json()
+    todos = requests.get(url + "/todos", params={"userId": user_id}).json()
 
-        # write each task as a row in the CSV file
-        for task in tasks_data:
-            writer.writerow([employee_data["id"], employee_data["username"], task["completed"], task["title"]])
+    username = user.get('username')
+    filename = user_id + ".csv"
+
+    rows = []
+    for data in todos:
+        rows.append([user_id, username, data.get(
+            'completed'), data.get('title')])
+
+    with open(filename, "w", newline="") as csvfile:
+        writer = csv.writer(csvfile, delimiter=',',
+                            quotechar='"', quoting=csv.QUOTE_ALL)
+        [writer.writerow(row) for row in rows]
