@@ -5,7 +5,11 @@
 """
 import requests
 
+
 def recurse(subreddit, hot_list=[]):
+    """ returns a list containing the titles of all hot 
+        articles for a given subreddit.
+    """
     user = {"User-Agent": "Scoot"}
     if len(hot_list) is 0:
         req = requests.get("https://www.reddit.com/r/{}/hot.json"

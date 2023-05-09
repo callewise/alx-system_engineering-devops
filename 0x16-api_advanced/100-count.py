@@ -6,6 +6,15 @@
 import requests
 
 def count_words(subreddit, word_list, after=None, word_counter={}):
+    """ Recursively find all the hot posts for a given Reddit subreddit and
+        prints a sorted count of given keywords.
+    Args:
+        subreddit (str): The name of the subreddit is given.
+        word_list (list of str): List containing words to look for in the
+        titles of hot posts in a subreddit.
+        after (str): ID of the last hot post in the returned result. Used to
+        get the next 100 hot posts after this ID.
+    """
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
     (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
     headers = {'User-Agent': user_agent}

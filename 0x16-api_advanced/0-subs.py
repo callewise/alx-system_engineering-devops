@@ -5,7 +5,16 @@
 """
 import requests
 
+
 def number_of_subscribers(subreddit):
+    """ Queries Reddit API and returns number of 
+        subscribers for a given subreddit.
+    Args:
+        subreddit (str): The name of the given subreddit.
+    Returns:
+        Returns the number of subscribers to the subreddit.
+        Returns 0 if the subreddit is not a valid.
+    """
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
     (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
     headers = {'User-Agent': user_agent}
