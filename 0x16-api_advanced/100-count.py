@@ -5,39 +5,41 @@
 """
 import requests
 
-def count_words(subreddit, word_list, after=None, counts={}):
-    if after == None:
-        counts = {word.lower(): 0 for word in word_list}
+def count_words(subreddit, word_list, after=None, word_counter={}):
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
+    (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
+    headers = {'User-Agent': user_agent}
+    url = 'https://www.reddit.com/r/{}/hot/.json?limit=100'.format(subreddit)
+    if after is not None:
+        url += '&after=' + after
+    resp = requests.get(url,
+                        headers=headers,
+                        allow_redirects=False)
+    if resp.status_code == 200:
+        resp_dict = resp.json()
+        data_dict = resp_dict.get('data', {})
+        a_list = data_dict.get('children', [])
+        for post in a_list:
+            post_dict = post.get('data', {})
+            title = post_dict.get('title')
+            if title is not None:
+                for word in title.lower().split():
+                    for i in range(len(word_list)):
+                        if word_list[i].lower() == word:
+                            word_counter[word_list[i]] = \
+                                word_counter.get(word_list[i], 0) + 1
 
-    url = f'https://www.reddit.com/r/{subreddit}/hot.json'
-    headers = {'User-agent': 'Mozilla/5.0'}
-    params = {'limit': 100}
-
-    if after:
-        params['after'] = after
-
-    response = requests.get(url, headers=headers, params=params)
-
-    if response.status_code == 200:
-        json_response = response.json()
-        data = json_response['data']
-        after = data['after']
-        children = data['children']
-
-        for child in children:
-            title = child['data']['title'].lower()
-            for word in word_list:
-                if ' ' + word.lower() + ' ' in ' ' + title + ' ':
-                    counts[word.lower()] += 1
-
-        if after:
-            count_words(subreddit, word_list, after, counts)
+        after = data_dict.get('after')
+        if after is None:
+            if word_counter != {}:
+                val_dict = {}
+                for key in word_counter:
+                    if val_dict.get(word_counter[key]) is None:
+                        val_dict[word_counter[key]] = [key]
+                    else:
+                        val_dict[word_counter[key]].append(key)
+                for key in sorted(val_dict.keys(), reverse=True):
+                    for word in sorted(val_dict[key]):
+                        print('{}: {}'.format(word, key))
         else:
-            sorted_counts = sorted(counts.items(), key=lambda x: (-x[1], x[0]))
-            for word, count in sorted_counts:
-                if count > 0:
-                    print(f'{word}: {count}')
-    elif response.status_code == 404:
-        print(None)
-    else:
-        print(f'Error: {response.status_code}')
+            count_words(subreddit, word_list, after, word_counter)
