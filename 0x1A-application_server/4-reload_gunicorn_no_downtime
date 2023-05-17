@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Send a graceful reload signal to the master process
+
+ps aux | grep gunicorn | awk '{ print $2 }' | xargs kill -HUP
